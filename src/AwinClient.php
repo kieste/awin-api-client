@@ -32,6 +32,14 @@ class AwinClient {
     public $timeout = 10;
 
     /**
+     * @var integer api limit per minute (default = 20 calls per minute)
+     * API calls are limited: http://wiki.awin.com/index.php/Publisher_API#Limitation.2FThrottling
+     */
+    public $apiCallsLimit = 20;
+
+    private $apiCallsCount = 0;
+
+    /**
      * @var CommissionGroup[] Commission groups
      */
     protected $commissionGroups = [];
@@ -44,6 +52,16 @@ class AwinClient {
     public function __construct($authToken, $publisherId) {
         $this->authToken = $authToken;
         $this->publisherId = $publisherId;
+    }
+
+    private function throttleApiCalls() {
+        if ($this->apiCallsCount < $this->apiCallsLimit) {
+            $this->apiCallsCount ++;
+            return;
+        }
+
+        sleep(60);
+        $this->apiCallsCount = 1;
     }
 
     /**
@@ -113,6 +131,11 @@ class AwinClient {
     }
 
     protected function makeRequest($resource, $query = "") {
+
+        if ($this->apiCallsLimit) {
+            $this->throttleApiCalls();
+        }
+
         $uri = $this->endpoint . $resource;
 
         $request = Request::get($uri . $query)
