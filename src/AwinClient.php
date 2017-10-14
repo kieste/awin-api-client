@@ -27,9 +27,9 @@ class AwinClient {
     protected $endpoint = 'https://api.awin.com';
 
     /**
-     * @var integer Max transactions per request
+     * @var integer request timeout in seconds (default = 10s)
      */
-    protected $itemsPerPage = 200;
+    public $timeout = 10;
 
     /**
      * @var CommissionGroup[] Commission groups
@@ -117,6 +117,7 @@ class AwinClient {
 
         $request = Request::get($uri . $query)
             ->addHeader('Authorization', 'Bearer ' . $this->authToken)
+            ->timeout($this->timeout)
             ->expectsJson();
 
         $response = $request->send();
