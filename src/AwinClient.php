@@ -172,7 +172,12 @@ class AwinClient {
         }
 
         // Request commission groups:
-        $commissionGroups = $this->getCommissionGroups($advertiserId);
+        try {
+            $commissionGroups = $this->getCommissionGroups($advertiserId);
+        }
+        catch (\Exception $e) {
+            return null;
+        }
 
         foreach ($commissionGroups as $commissionGroup) {
             $this->commissionGroups[$commissionGroup->id] = $commissionGroup;
